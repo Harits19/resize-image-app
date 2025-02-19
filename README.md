@@ -1,50 +1,38 @@
-# React + TypeScript + Vite
+🚀 Introducing Image Resizer for Instagram  
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+I’m excited to share my latest personal project: Image Resizer for Instagram, a simple yet powerful tool that adjusts images to Instagram’s aspect ratios with automated padding.  
 
-Currently, two official plugins are available:
+I built this to help users avoid unwanted image cropping, and along the way, I deepened my understanding of HTML canvas.  
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+**Key Features:**  
+✅ Multiple aspect ratio options  
+✅ Customizable background colors  
+✅ Bulk upload & download support  
 
-## Expanding the ESLint configuration
+**Tech Stack:**  
+🛠️ Libraries Used:  
+✔ jszip – For efficient file compression (https://stuk.github.io/jszip/)  
+✔ bun – Lightning-fast JavaScript runtime (https://bun.sh/)  
+✔ tailwindcss – For a sleek and responsive UI (https://tailwindcss.com/)  
+✔ vite – Ensuring fast builds and optimized performance (https://vitejs.dev/)  
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+**Installation & Setup**  
+To run this project locally, follow these steps:  
 
-- Configure the top-level `parserOptions` property like this:
+1. Clone the repository:  
+   `git clone https://github.com/Harits19/resize-image-app.git`  
+2. Navigate to the project folder:  
+   `cd resize-image-app`  
+3. Install dependencies:  
+   `bun install`  
+4. Start the development server:  
+   `bun dev`  
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+To build the project for production:  
+   `bun run build`  
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+🔗 Try it out here: [Live Demo](https://harits19.github.io/resize-image-app/)  
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+Would love to hear your feedback! Let’s connect, collaborate, and improve this tool together. 🚀  
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+#Portfolio #PersonalProject #WebDevelopment #ImageProcessing #Tech #OpenToWork
