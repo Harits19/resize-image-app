@@ -4,7 +4,7 @@ import { useRef, useState } from "react";
 import { downloadBlob, smallestRatio } from "./utils/file-util";
 import useBeforeUnload from "./hooks/use-before-unload";
 import { RatioModel } from "./models/ratio-model";
-import ImageCanvas from "./components/image-canvast";
+import ImageCanvas from "./components/image-canvas";
 import { IoIosCloseCircle } from "react-icons/io";
 import useImageState from "./hooks/use-image-state";
 import Button from "./components/button";

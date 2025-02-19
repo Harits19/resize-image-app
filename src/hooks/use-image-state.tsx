@@ -1,6 +1,6 @@
 import { useReducer, useRef } from "react";
 import { ImageModel } from "../models/image-model";
-import { ImageCanvasRefProps } from "../components/image-canvast";
+import { ImageCanvasRefProps } from "../components/image-canvas";
 
 interface State {
   images: ImageModel[];
