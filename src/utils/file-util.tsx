@@ -1,5 +1,4 @@
 export function smallestRatio(size1: number, size2: number): string {
-  // Handle zero cases
   if (size1 === 0 && size2 === 0) {
     return "Undefined ratio (0:0)";
   } else if (size1 === 0) {
@@ -8,7 +7,6 @@ export function smallestRatio(size1: number, size2: number): string {
     return "1:0";
   }
 
-  // GCD Calculation (Euclidean algorithm)
   function gcd(a: number, b: number): number {
     while (b) {
       [a, b] = [b, a % b];
@@ -18,7 +16,6 @@ export function smallestRatio(size1: number, size2: number): string {
 
   const commonDivisor: number = gcd(size1, size2);
 
-  // Simplify the ratio
   const simplifiedSize1: number = size1 / commonDivisor;
   const simplifiedSize2: number = size2 / commonDivisor;
 
@@ -28,7 +25,6 @@ export function smallestRatio(size1: number, size2: number): string {
 export function getFilenameWithoutExtension(filename: string) {
   const lastDotIndex = filename.lastIndexOf(".");
   if (lastDotIndex === -1) {
-    // No extension found
     return filename;
   } else {
     return filename.substring(0, lastDotIndex);
@@ -51,9 +47,9 @@ export function downloadBlob({
   const a = document.createElement("a");
 
   a.href = url;
-  a.download = filename ?? "Empty name"; // Set the filename
-  document.body.appendChild(a); // Required for Firefox
+  a.download = filename ?? "Empty name";
+  document.body.appendChild(a);
   a.click();
-  document.body.removeChild(a); // Clean up
-  URL.revokeObjectURL(url); // Release memory
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }

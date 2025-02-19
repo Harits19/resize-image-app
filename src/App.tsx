@@ -12,6 +12,7 @@ import JSZip from "jszip";
 
 function App() {
   const imageInputRef = useRef<HTMLInputElement>(null);
+  const [backgroundColor, setBackgroundColor] = useState("#00000");
   const { dispatch, currentImage, images, refs } = useImageState();
   const [loadingAll, setLoadingAll] = useState(false);
 
@@ -50,16 +51,14 @@ function App() {
 
       if (!filename || !blob) continue;
 
-      zip.file(filename, blob, { binary: true }); // Add canvas to zip
+      zip.file(filename, blob, { binary: true });
     }
 
-    const zipBlob = await zip.generateAsync({ type: "blob" }); // Generate the zip file
+    const zipBlob = await zip.generateAsync({ type: "blob" });
     const ratioText = smallestRatio(
       currentRatio.width,
       currentRatio.height
     ).replace(":", "x");
-
-    // 3. Create a download link (without FileSaver)
 
     downloadBlob({ blob: zipBlob, filename: `Size ${ratioText}.zip` });
     setLoadingAll(false);
@@ -107,6 +106,16 @@ function App() {
               );
             })}
           </div>
+          <div className="h-8" />
+          <span>Background Color</span>
+          <div className="h-2" />
+          <input
+            className="w-full h-12"
+            type="color"
+            value={backgroundColor}
+            onChange={(e) => setBackgroundColor(e.target.value)}
+          />
+
           <div className="flex flex-1" />
           {images.length > 0 && (
             <Button loading={loadingAll} onClick={handleDownloadAll}>
@@ -146,6 +155,7 @@ function App() {
             {images.map((item, index) => {
               return (
                 <ImageCanvas
+                  backgroundColor={backgroundColor}
                   setRef={(value) => (refs.current[index] = value)}
                   key={item.url}
                   value={item}

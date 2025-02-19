@@ -6,6 +6,7 @@ import {
 } from "../utils/file-util";
 import { ImageModel } from "../models/image-model";
 import Button from "./button";
+import useDebounceValue from "../hooks/use-debounce-value";
 
 export interface ImageCanvasRefProps extends HTMLCanvasElement {
   getBlobData: () => Promise<{ blob?: Blob; filename?: string }>;
@@ -16,6 +17,7 @@ export default function ImageCanvas({
   ratio,
   show = true,
   setRef,
+  backgroundColor,
 }: {
   value: ImageModel;
   ratio: {
@@ -24,8 +26,11 @@ export default function ImageCanvas({
   };
   show?: boolean;
   setRef: (value: ImageCanvasRefProps) => void;
+  backgroundColor?: string;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  const backgroundColorDebounce = useDebounceValue(backgroundColor);
 
   useEffect(() => {
     if (!canvasRef.current) return;
@@ -64,27 +69,24 @@ export default function ImageCanvas({
       const canvasAspectRatio = ratio.width / ratio.height;
 
       if (imageAspectRatio > canvasAspectRatio) {
-        // Image is wider than the canvas aspect ratio, so width is the limiting factor
         canvasWidth = imageWidth;
         canvasHeight = canvasWidth / canvasAspectRatio;
       } else {
-        // Image is taller than or equal to the canvas aspect ratio, so height is the limiting factor
         canvasHeight = imageHeight;
         canvasWidth = canvasHeight * canvasAspectRatio;
       }
 
       canvas.width = canvasWidth;
       canvas.height = canvasHeight;
-      ctx.fillStyle = "black"; // Default to transparent if not provided
+      ctx.fillStyle = backgroundColorDebounce || "black";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       const centerX = (canvasWidth - imageWidth) / 2;
       const centerY = (canvasHeight - imageHeight) / 2;
 
-      // 2. Draw the image (now on top of the background)
       ctx.drawImage(img, centerX, centerY);
     };
-  }, [ratio.height, ratio.width, value.url]);
+  }, [backgroundColorDebounce, ratio.height, ratio.width, value.url]);
 
   const getBlobData = async () => {
     const canvas = canvasRef.current;
