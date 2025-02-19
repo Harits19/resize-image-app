@@ -1,7 +1,7 @@
 import { RiImageAddFill } from "react-icons/ri";
 import BaseContainer from "./components/base-container";
 import { useRef, useState } from "react";
-import { smallestRatio } from "./utils/file-util";
+import { downloadBlob, smallestRatio } from "./utils/file-util";
 import useBeforeUnload from "./hooks/use-before-unload";
 import { RatioModel } from "./models/ratio-model";
 import ImageCanvas from "./components/image-canvast";
@@ -13,6 +13,7 @@ import JSZip from "jszip";
 function App() {
   const imageInputRef = useRef<HTMLInputElement>(null);
   const { dispatch, currentImage, images, refs } = useImageState();
+  const [loadingAll, setLoadingAll] = useState(false);
 
   const listImageRatio: RatioModel[] = [
     {
@@ -40,6 +41,7 @@ function App() {
   };
 
   const handleDownloadAll = async () => {
+    setLoadingAll(true);
     const zip = new JSZip();
 
     for (const item of refs.current) {
@@ -52,14 +54,15 @@ function App() {
     }
 
     const zipBlob = await zip.generateAsync({ type: "blob" }); // Generate the zip file
+    const ratioText = smallestRatio(
+      currentRatio.width,
+      currentRatio.height
+    ).replace(":", "x");
 
     // 3. Create a download link (without FileSaver)
-    const link = document.createElement("a");
-    link.href = URL.createObjectURL(zipBlob);
-    link.download = "canvas_data.zip";
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link); // Clean up the link
+
+    downloadBlob({ blob: zipBlob, filename: `Size ${ratioText}.zip` });
+    setLoadingAll(false);
   };
 
   return (
@@ -106,7 +109,9 @@ function App() {
           </div>
           <div className="flex flex-1" />
           {images.length > 0 && (
-            <Button onClick={handleDownloadAll}>Download All</Button>
+            <Button loading={loadingAll} onClick={handleDownloadAll}>
+              Download All
+            </Button>
           )}
         </BaseContainer>
         <BaseContainer className="flex-1 flex flex-col">

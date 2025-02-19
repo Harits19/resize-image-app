@@ -34,3 +34,26 @@ export function getFilenameWithoutExtension(filename: string) {
     return filename.substring(0, lastDotIndex);
   }
 }
+
+export function downloadBlob({
+  blob,
+  filename,
+}: {
+  blob?: Blob;
+  filename?: string;
+}) {
+  if (!blob) {
+    console.log("blob data is empty");
+
+    return;
+  }
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+
+  a.href = url;
+  a.download = filename ?? "Empty name"; // Set the filename
+  document.body.appendChild(a); // Required for Firefox
+  a.click();
+  document.body.removeChild(a); // Clean up
+  URL.revokeObjectURL(url); // Release memory
+}

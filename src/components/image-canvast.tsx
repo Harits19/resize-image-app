@@ -1,5 +1,9 @@
 import { useEffect, useRef } from "react";
-import { getFilenameWithoutExtension, smallestRatio } from "../utils/file-util";
+import {
+  downloadBlob,
+  getFilenameWithoutExtension,
+  smallestRatio,
+} from "../utils/file-util";
 import { ImageModel } from "../models/image-model";
 import Button from "./button";
 
@@ -89,14 +93,14 @@ export default function ImageCanvas({
       console.log("canvas is undefined");
 
       return {
-        blob: undefined,
         filename: undefined,
       };
     }
 
-    const blob = await new Promise<Blob | null>((resolve) =>
-      canvas.toBlob((blob) => resolve(blob), "image/jpeg")
-    ) ?? undefined; 
+    const blob =
+      (await new Promise<Blob | null>((resolve) =>
+        canvas.toBlob((blob) => resolve(blob), "image/jpeg")
+      )) ?? undefined;
     const imageFile = getFilenameWithoutExtension(value.file.name);
     const ratioText = smallestRatio(ratio.width, ratio.height).replace(
       ":",
@@ -120,42 +124,9 @@ export default function ImageCanvas({
       return;
     }
 
-    const { blob, filename } = await getBlobData();
+    const blobData = await getBlobData();
 
-    if (blob) {
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-
-      a.href = url;
-      a.download = filename; // Set the filename
-      document.body.appendChild(a); // Required for Firefox
-      a.click();
-      document.body.removeChild(a); // Clean up
-      URL.revokeObjectURL(url); // Release memory
-    } else {
-      console.error("Failed to create blob.");
-    }
-
-    // Method 1: Using toBlob (Recommended for most cases)
-    canvas.toBlob((blob) => {
-      if (blob) {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        const ratioText = smallestRatio(ratio.width, ratio.height).replace(
-          ":",
-          "x"
-        );
-        a.href = url;
-        const imageFile = getFilenameWithoutExtension(value.file.name);
-        a.download = `${imageFile} ${ratioText}.jpeg`; // Set the filename
-        document.body.appendChild(a); // Required for Firefox
-        a.click();
-        document.body.removeChild(a); // Clean up
-        URL.revokeObjectURL(url); // Release memory
-      } else {
-        console.error("Failed to create blob.");
-      }
-    }, "image/jpeg"); // Specify image type (PNG is lossless)
+    downloadBlob(blobData);
   };
 
   return (
