@@ -83,39 +83,50 @@ function App() {
         </BaseContainer>
         <BaseContainer className="flex-1 flex flex-col">
           <div className="border w-full border-dashed flex flex-col items-center justify-center text-center h-full rounded-lg text-gray-500 relative">
-            {!currentImage && <button className="w-full h-full" onClick={handleOnClickArea}>
-              <input
-                ref={imageInputRef}
-                type="file"
-                className="hidden"
-                multiple
-                accept="image/*"
-                onChange={(e) => {
-                  const newImages = Array.from(e.target.files ?? []);
-                  if (newImages.length === 0) {
-                    console.log("No Image Selected");
-                    return;
-                  }
-                  dispatch({ type: "setImage", payload: newImages });
-                }}
-              />
-              <div
-                className={`${
-                  currentImage ? "opacity-0" : ""
-                } flex flex-col items-center justify-center `}
-              >
-                <RiImageAddFill className="text-[60px] text-center" />
-                <div>Tarik Gambarmu Kesini</div>
-              </div>
-            </button>}
+            {!currentImage && (
+              <button className="w-full h-full" onClick={handleOnClickArea}>
+                <input
+                  ref={imageInputRef}
+                  type="file"
+                  className="hidden"
+                  multiple
+                  accept="image/*"
+                  onChange={(e) => {
+                    const newImages = Array.from(e.target.files ?? []);
+                    if (newImages.length === 0) {
+                      console.log("No Image Selected");
+                      return;
+                    }
+                    dispatch({ type: "setImage", payload: newImages });
+                  }}
+                />
+                <div
+                  className={`${
+                    currentImage ? "opacity-0" : ""
+                  } flex flex-col items-center justify-center `}
+                >
+                  <RiImageAddFill className="text-[60px] text-center" />
+                  <div>Tarik Gambarmu Kesini</div>
+                </div>
+              </button>
+            )}
 
-            {currentImage && (
+            {/* {currentImage && (
               <ImageCanvas
                 key={currentImage.url}
                 value={currentImage}
                 ratio={currentRatio}
               />
-            )}
+            )} */}
+
+            {images.map((item) => (
+              <ImageCanvas
+                key={item.url}
+                value={item}
+                ratio={currentRatio}
+                show={item.file.name === currentImage?.file.name}
+              />
+            ))}
           </div>
           <div className="flex flex-col w-full  h-[90px] overflow-x-scroll mt-4 no-scrollbar ">
             <div className="flex flex-row w-max h-full gap-x-2 bg-green-50">

@@ -5,12 +5,14 @@ import { ImageModel } from "../models/image-model";
 export default function ImageCanvas({
   value,
   ratio,
+  show = true,
 }: {
   value: ImageModel;
   ratio: {
     width: number;
     height: number;
   };
+  show?: boolean;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
@@ -97,7 +99,7 @@ export default function ImageCanvas({
   };
 
   return (
-    <div className="h-full w-full absolute">
+    <div className={`h-full w-full absolute ${show ? "" : "opacity-0"}`}>
       <canvas
         className="w-full h-full object-contain absolute "
         ref={canvasRef}
