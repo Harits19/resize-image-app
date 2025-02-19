@@ -16,6 +16,16 @@ I built this to help users avoid unwanted image cropping, and along the way, I d
 ✔ tailwindcss – For a sleek and responsive UI (https://tailwindcss.com/)  
 ✔ vite – Ensuring fast builds and optimized performance (https://vitejs.dev/)  
 
+
+**Next Steps:**
+✔ Enhancing mobile responsiveness for a seamless user experience across all devices
+✔ Expanding background customization with gradients, patterns, and image-based options
+✔ Adding more aspect ratio support, including Instagram Stories and Reels
+✔ Optimizing performance for faster image processing and downloads
+✔ Introducing individual aspect ratio selection per image
+
+
+
 **Installation & Setup**  
 To run this project locally, follow these steps:  
 
