@@ -40,13 +40,13 @@ function App() {
     setLoadingAll(true);
     const zip = new JSZip();
 
-    for (const [index, item] of Object.entries(refs.current)) {
+    for (const item of refs.current) {
       if (!item) continue;
       const { blob, filename } = await item.getBlobData();
 
       if (!filename || !blob) continue;
 
-      zip.file(`(${Number(index) + 1}) ${filename}`, blob, { binary: true });
+      zip.file(`${filename}`, blob, { binary: true });
     }
 
     const zipBlob = await zip.generateAsync({ type: "blob" });
