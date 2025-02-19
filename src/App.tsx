@@ -8,10 +8,11 @@ import ImageCanvas from "./components/image-canvast";
 import { IoIosCloseCircle } from "react-icons/io";
 import useImageState from "./hooks/use-image-state";
 import Button from "./components/button";
+import JSZip from "jszip";
 
 function App() {
   const imageInputRef = useRef<HTMLInputElement>(null);
-  const { dispatch, currentImage, images } = useImageState();
+  const { dispatch, currentImage, images, refs } = useImageState();
 
   const listImageRatio: RatioModel[] = [
     {
@@ -36,6 +37,29 @@ function App() {
 
   const handleOnClickArea = () => {
     imageInputRef.current?.click();
+  };
+
+  const handleDownloadAll = async () => {
+    const zip = new JSZip();
+
+    for (const item of refs.current) {
+      if (!item) continue;
+      const { blob, filename } = await item.getBlobData();
+
+      if (!filename || !blob) continue;
+
+      zip.file(filename, blob, { binary: true }); // Add canvas to zip
+    }
+
+    const zipBlob = await zip.generateAsync({ type: "blob" }); // Generate the zip file
+
+    // 3. Create a download link (without FileSaver)
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(zipBlob);
+    link.download = "canvas_data.zip";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link); // Clean up the link
   };
 
   return (
@@ -82,7 +106,7 @@ function App() {
           </div>
           <div className="flex flex-1" />
           {images.length > 0 && (
-            <Button onClick={() => {}}>Download All</Button>
+            <Button onClick={handleDownloadAll}>Download All</Button>
           )}
         </BaseContainer>
         <BaseContainer className="flex-1 flex flex-col">
@@ -114,14 +138,17 @@ function App() {
                 </div>
               </button>
             )}
-            {images.map((item) => (
-              <ImageCanvas
-                key={item.url}
-                value={item}
-                ratio={currentRatio}
-                show={item.file.name === currentImage?.file.name}
-              />
-            ))}
+            {images.map((item, index) => {
+              return (
+                <ImageCanvas
+                  setRef={(value) => (refs.current[index] = value)}
+                  key={item.url}
+                  value={item}
+                  ratio={currentRatio}
+                  show={item.file.name === currentImage?.file.name}
+                />
+              );
+            })}
           </div>
           <div className="flex flex-col w-full  h-[90px] overflow-x-scroll mt-4 no-scrollbar ">
             <div className="flex flex-row w-max h-full gap-x-2 bg-green-50">

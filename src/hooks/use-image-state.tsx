@@ -1,5 +1,6 @@
-import { useReducer } from "react";
+import { useReducer, useRef } from "react";
 import { ImageModel } from "../models/image-model";
+import { ImageCanvasRefProps } from "../components/image-canvast";
 
 interface State {
   images: ImageModel[];
@@ -21,6 +22,7 @@ type Action =
     };
 
 export default function useImageState() {
+  const refs = useRef<(ImageCanvasRefProps | null)[]>([]);
   const reducers = (prevState: State, action: Action): State => {
     const newState: State = { ...prevState };
 
@@ -66,5 +68,5 @@ export default function useImageState() {
     images: [],
   });
 
-  return { images, currentImage, dispatch };
+  return { images, currentImage, dispatch, refs };
 }

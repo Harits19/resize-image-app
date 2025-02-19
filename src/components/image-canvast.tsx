@@ -3,10 +3,15 @@ import { getFilenameWithoutExtension, smallestRatio } from "../utils/file-util";
 import { ImageModel } from "../models/image-model";
 import Button from "./button";
 
+export interface ImageCanvasRefProps extends HTMLCanvasElement {
+  getBlobData: () => Promise<{ blob?: Blob; filename?: string }>;
+}
+
 export default function ImageCanvas({
   value,
   ratio,
   show = true,
+  setRef,
 }: {
   value: ImageModel;
   ratio: {
@@ -14,8 +19,17 @@ export default function ImageCanvas({
     height: number;
   };
   show?: boolean;
+  setRef: (value: ImageCanvasRefProps) => void;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    if (!canvasRef.current) return;
+    setRef({
+      ...canvasRef.current,
+      getBlobData,
+    });
+  }, []);
 
   useEffect(() => {
     const img = new Image();
@@ -68,13 +82,58 @@ export default function ImageCanvas({
     };
   }, [ratio.height, ratio.width, value.url]);
 
-  const handleDownload = () => {
+  const getBlobData = async () => {
+    const canvas = canvasRef.current;
+
+    if (!canvas) {
+      console.log("canvas is undefined");
+
+      return {
+        blob: undefined,
+        filename: undefined,
+      };
+    }
+
+    const blob = await new Promise<Blob | null>((resolve) =>
+      canvas.toBlob((blob) => resolve(blob), "image/jpeg")
+    ) ?? undefined; 
+    const imageFile = getFilenameWithoutExtension(value.file.name);
+    const ratioText = smallestRatio(ratio.width, ratio.height).replace(
+      ":",
+      "x"
+    );
+
+    const filename = `${imageFile} ${ratioText}.jpeg`;
+
+    return {
+      blob,
+      filename,
+    };
+  };
+
+  const handleDownload = async () => {
     const canvas = canvasRef.current;
 
     if (!canvas) {
       console.log("canvas is undefined");
 
       return;
+    }
+
+    const { blob, filename } = await getBlobData();
+
+    if (blob) {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+
+      a.href = url;
+      a.download = filename; // Set the filename
+      document.body.appendChild(a); // Required for Firefox
+      a.click();
+      document.body.removeChild(a); // Clean up
+      URL.revokeObjectURL(url); // Release memory
+    } else {
+      console.error("Failed to create blob.");
     }
 
     // Method 1: Using toBlob (Recommended for most cases)
