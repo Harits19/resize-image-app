@@ -32,3 +32,13 @@ export function smallestRatio(size1: number, size2: number): string {
 
   return `${simplifiedSize1}:${simplifiedSize2}`;
 }
+
+export function getFilenameWithoutExtension(filename: string) {
+  const lastDotIndex = filename.lastIndexOf('.');
+  if (lastDotIndex === -1) {
+    // No extension found
+    return filename;
+  } else {
+    return filename.substring(0, lastDotIndex);
+  }
+}

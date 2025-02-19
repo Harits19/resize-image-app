@@ -4,12 +4,12 @@ import { useRef, useState } from "react";
 import { createObjectURL, smallestRatio } from "./utils/file-util";
 import useBeforeUnload from "./hooks/use-before-unload";
 import { RatioModel } from "./models/ratio-model";
+import ImageCanvas from "./components/image-canvast";
 
 function App() {
   const imageInputRef = useRef<HTMLInputElement>(null);
   const [images, setImages] = useState<File[]>([]);
   const [currentImage, setCurrentImage] = useState<File>();
-  const currentImageSrc = currentImage && URL.createObjectURL(currentImage);
 
   const listImageRatio: RatioModel[] = [
     {
@@ -26,7 +26,9 @@ function App() {
     },
   ];
 
-  const [currentRatio, setCurrentRatio] = useState<RatioModel>(listImageRatio[0]);
+  const [currentRatio, setCurrentRatio] = useState<RatioModel>(
+    listImageRatio[0]
+  );
 
   useBeforeUnload();
 
@@ -47,7 +49,8 @@ function App() {
           <div className="flex flex-col gap-y-2 w-full items-center">
             {listImageRatio.map((item) => {
               const { height, width } = item;
-              const isSelected = height === currentRatio.height && width === currentRatio.width;
+              const isSelected =
+                height === currentRatio.height && width === currentRatio.width;
               const key = `${height}-${width}`;
 
               const size = 12;
@@ -60,13 +63,15 @@ function App() {
               return (
                 <button
                   key={key}
-                  className={`border flex flex-col items-center justify-center ${isSelected ? 'border-blue-400 text-blue-400' : ''} `}
+                  className={`border flex flex-col items-center justify-center ${
+                    isSelected ? "border-blue-400 text-blue-400" : ""
+                  } `}
                   style={{
                     height: newHeight,
                     width: newWidth,
                   }}
                   onClick={() => {
-                    setCurrentRatio(item)
+                    setCurrentRatio(item);
                   }}
                 >
                   {text}
@@ -76,41 +81,44 @@ function App() {
           </div>
         </BaseContainer>
         <BaseContainer className="flex-1 flex flex-col">
-          <button
-            className="border w-full border-dashed flex flex-col items-center justify-center text-center h-full rounded-lg text-gray-500 relative"
-            onClick={handleOnClickArea}
-          >
-            <input
-              ref={imageInputRef}
-              type="file"
-              className="hidden"
-              multiple
-              accept="image/*"
-              onChange={(e) => {
-                const newImages = Array.from(e.target.files ?? []);
-                if (newImages.length === 0) {
-                  console.log("No Image Selected");
-                  return;
-                }
-                setImages(newImages);
-                setCurrentImage(newImages[0]);
-              }}
-            />
-            <div
-              className={`${
-                currentImage ? "opacity-0" : ""
-              } flex flex-col items-center justify-center `}
-            >
-              <RiImageAddFill className="text-[60px] text-center" />
-              <div>Tarik Gambarmu Kesini</div>
-            </div>
+          <div className="border w-full border-dashed flex flex-col items-center justify-center text-center h-full rounded-lg text-gray-500 relative">
+            <button className="w-full h-full" onClick={handleOnClickArea}>
+              <input
+                ref={imageInputRef}
+                type="file"
+                className="hidden"
+                multiple
+                accept="image/*"
+                onChange={(e) => {
+                  const newImages = Array.from(e.target.files ?? []);
+                  if (newImages.length === 0) {
+                    console.log("No Image Selected");
+                    return;
+                  }
+                  setImages(newImages);
+                  setCurrentImage(newImages[0]);
+                }}
+              />
+              <div
+                className={`${
+                  currentImage ? "opacity-0" : ""
+                } flex flex-col items-center justify-center `}
+              >
+                <RiImageAddFill className="text-[60px] text-center" />
+                <div>Tarik Gambarmu Kesini</div>
+              </div>
+            </button>
+
             {currentImage && (
-              <img
-                src={currentImageSrc}
-                className="absolute w-full h-full object-contain "
+              <ImageCanvas
+                value={currentImage}
+                canvasAspectRatio={currentRatio.width / currentRatio.height}
+                onClickClose={() => {
+                  setCurrentImage(undefined);
+                }}
               />
             )}
-          </button>
+          </div>
           <div className="flex flex-col w-full h-auto overflow-x-scroll mt-4 no-scrollbar overflow-y-hidden ">
             <div className="flex flex-row w-max gap-x-2 bg-green-50">
               {images.map((item) => {
