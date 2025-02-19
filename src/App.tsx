@@ -1,6 +1,5 @@
-import { RiImageAddFill } from "react-icons/ri";
 import BaseContainer from "./components/base-container";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { downloadBlob, smallestRatio } from "./utils/file-util";
 import useBeforeUnload from "./hooks/use-before-unload";
 import { RatioModel } from "./models/ratio-model";
@@ -9,9 +8,9 @@ import { IoIosCloseCircle } from "react-icons/io";
 import useImageState from "./hooks/use-image-state";
 import Button from "./components/button";
 import JSZip from "jszip";
+import ImageInputView from "./components/image-input-view";
 
 function App() {
-  const imageInputRef = useRef<HTMLInputElement>(null);
   const [backgroundColor, setBackgroundColor] = useState("#00000");
   const { dispatch, currentImage, images, refs } = useImageState();
   const [loadingAll, setLoadingAll] = useState(false);
@@ -37,21 +36,17 @@ function App() {
 
   useBeforeUnload();
 
-  const handleOnClickArea = () => {
-    imageInputRef.current?.click();
-  };
-
   const handleDownloadAll = async () => {
     setLoadingAll(true);
     const zip = new JSZip();
 
-    for (const item of refs.current) {
+    for (const [index, item] of Object.entries(refs.current)) {
       if (!item) continue;
       const { blob, filename } = await item.getBlobData();
 
       if (!filename || !blob) continue;
 
-      zip.file(filename, blob, { binary: true });
+      zip.file(`(${Number(index) + 1}) ${filename}`, blob, { binary: true });
     }
 
     const zipBlob = await zip.generateAsync({ type: "blob" });
@@ -124,34 +119,8 @@ function App() {
           )}
         </BaseContainer>
         <BaseContainer className="flex-1 flex flex-col">
+          {currentImage?.file.name}
           <div className="border w-full border-dashed flex flex-col items-center justify-center text-center h-full rounded-lg text-gray-500 relative">
-            {!currentImage && (
-              <button className="w-full h-full" onClick={handleOnClickArea}>
-                <input
-                  ref={imageInputRef}
-                  type="file"
-                  className="hidden"
-                  multiple
-                  accept="image/*"
-                  onChange={(e) => {
-                    const newImages = Array.from(e.target.files ?? []);
-                    if (newImages.length === 0) {
-                      console.log("No Image Selected");
-                      return;
-                    }
-                    dispatch({ type: "setImage", payload: newImages });
-                  }}
-                />
-                <div
-                  className={`${
-                    currentImage ? "opacity-0" : ""
-                  } flex flex-col items-center justify-center `}
-                >
-                  <RiImageAddFill className="text-[60px] text-center" />
-                  <div>Tarik Gambarmu Kesini</div>
-                </div>
-              </button>
-            )}
             {images.map((item, index) => {
               return (
                 <ImageCanvas
@@ -164,43 +133,57 @@ function App() {
                 />
               );
             })}
-          </div>
-          <div className="flex flex-col w-full  h-[90px] overflow-x-scroll mt-4 no-scrollbar ">
-            <div className="flex flex-row w-max h-full gap-x-2 bg-green-50">
-              {images.map((item) => {
-                const isSelected = item.file.name === currentImage?.file.name;
-                return (
-                  <div
-                    className={`bg-gray-400 w-[160px] h-full cursor-grab relative ${
-                      isSelected ? " border-blue-500 border-2" : ""
-                    }`}
-                    key={item.url}
-                  >
-                    <button
-                      className="w-full h-full object-contain absolute"
-                      onClick={() => {
-                        dispatch({ type: "setCurrentImage", payload: item });
-                      }}
-                    >
-                      <img
-                        className="w-full h-full object-contain "
-                        src={item.url}
-                        key={item.url}
-                      />
-                    </button>
-                    <button
-                      className="absolute right-0 p-1"
-                      onClick={() => {
-                        dispatch({ type: "deleteImage", payload: item });
-                      }}
-                    >
-                      <IoIosCloseCircle className="text-[24px] text-black shadow-lg border-white  rounded-full overflow-hidden border" />
-                    </button>
-                  </div>
-                );
-              })}
+            <div
+              className={`absolute w-full h-full ${
+                images.length > 0 ? "opacity-0" : ""
+              }`}
+            >
+              <ImageInputView
+                files={images.map((item) => item.file)}
+                onChange={(newImages) =>
+                  dispatch({ type: "setImage", payload: newImages })
+                }
+              />
             </div>
           </div>
+          {images.length > 0 && (
+            <div className="flex flex-col w-full  h-[90px] overflow-x-scroll mt-4 no-scrollbar ">
+              <div className="flex flex-row w-max h-full gap-x-2 bg-green-50">
+                {images.map((item) => {
+                  const isSelected = item.file.name === currentImage?.file.name;
+                  return (
+                    <div
+                      className={`bg-gray-400 w-[160px] h-full cursor-grab relative ${
+                        isSelected ? " border-blue-500 border-2" : ""
+                      }`}
+                      key={item.url}
+                    >
+                      <button
+                        className="w-full h-full object-contain absolute"
+                        onClick={() => {
+                          dispatch({ type: "setCurrentImage", payload: item });
+                        }}
+                      >
+                        <img
+                          className="w-full h-full object-contain "
+                          src={item.url}
+                          key={item.url}
+                        />
+                      </button>
+                      <button
+                        className="absolute right-0 p-1"
+                        onClick={() => {
+                          dispatch({ type: "deleteImage", payload: item });
+                        }}
+                      >
+                        <IoIosCloseCircle className="text-[24px] text-black shadow-lg border-white  rounded-full overflow-hidden border" />
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </BaseContainer>
       </div>
     </div>

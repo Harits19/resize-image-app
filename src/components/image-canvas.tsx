@@ -137,7 +137,7 @@ export default function ImageCanvas({
         className="w-full h-full object-contain absolute "
         ref={canvasRef}
       ></canvas>
-      <div className="absolute w-full flex flex-row items-center justify-center bottom-0 p-4">
+      <div className="absolute w-full flex flex-row items-center justify-center bottom-0 p-4 z-50">
         <Button className=" border-white border w-min" onClick={handleDownload}>
           Download
         </Button>

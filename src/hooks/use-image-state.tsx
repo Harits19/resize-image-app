@@ -32,13 +32,17 @@ export default function useImageState() {
     };
 
     const setFirstImage = () => {
-      if (newState.images.length === 0) return;
+      if (newState.images.length === 0) {
+        newState.currentImage = undefined;
+
+        return;
+      }
       newState.currentImage = newState.images[0];
     };
 
     const deleteImage = (payload: ImageModel) => {
       newState.images = prevState.images.filter(
-        (item) => item.file.name !== payload.file.name
+        (item) => item.url !== payload.url
       );
       setFirstImage();
     };
