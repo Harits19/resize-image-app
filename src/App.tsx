@@ -113,9 +113,19 @@ function App() {
 
           <div className="flex flex-1" />
           {images.length > 0 && (
-            <Button loading={loadingAll} onClick={handleDownloadAll}>
-              Download All
-            </Button>
+            <>
+              <Button loading={loadingAll} onClick={handleDownloadAll}>
+                Download All
+              </Button>
+              <div className="h-4" />
+              <Button
+                onClick={() => {
+                  dispatch({ type: "setImage", payload: [] });
+                }}
+              >
+                Delete All
+              </Button>
+            </>
           )}
         </BaseContainer>
         <BaseContainer className="flex-1 flex flex-col">
