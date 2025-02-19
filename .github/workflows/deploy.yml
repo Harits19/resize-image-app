@@ -3,10 +3,7 @@ name: Vite CI/CD with Bun
 on:
   push:
     branches:
-      - main
-  pull_request:
-    branches:
-      - main
+      - master
 
 jobs:
   build:
