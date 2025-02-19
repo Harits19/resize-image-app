@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { getFilenameWithoutExtension, smallestRatio } from "../utils/file-util";
 import { ImageModel } from "../models/image-model";
+import Button from "./button";
 
 export default function ImageCanvas({
   value,
@@ -99,11 +100,16 @@ export default function ImageCanvas({
   };
 
   return (
-    <div className={`h-full w-full absolute ${show ? "" : "opacity-0"}`}>
+    <div className={`h-full w-full absolute ${show ? "" : "opacity-0 hidden"}`}>
       <canvas
         className="w-full h-full object-contain absolute "
         ref={canvasRef}
       ></canvas>
+      <div className="absolute w-full flex flex-row items-center justify-center bottom-0 p-4">
+        <Button className=" border-white border w-min" onClick={handleDownload}>
+          Download
+        </Button>
+      </div>
     </div>
   );
 }

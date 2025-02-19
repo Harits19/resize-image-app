@@ -7,6 +7,7 @@ import { RatioModel } from "./models/ratio-model";
 import ImageCanvas from "./components/image-canvast";
 import { IoIosCloseCircle } from "react-icons/io";
 import useImageState from "./hooks/use-image-state";
+import Button from "./components/button";
 
 function App() {
   const imageInputRef = useRef<HTMLInputElement>(null);
@@ -43,10 +44,9 @@ function App() {
         <h1 className="">Image Resizer (for instagram)</h1>
       </div>
       <div className="h-full w-full flex flex-row p-8 gap-x-4">
-        <BaseContainer>
+        <BaseContainer className="flex flex-col">
           <span>Image Ratio</span>
           <div className="h-8" />
-
           <div className="flex flex-col gap-y-2 w-full items-center">
             {listImageRatio.map((item) => {
               const { height, width } = item;
@@ -80,6 +80,10 @@ function App() {
               );
             })}
           </div>
+          <div className="flex flex-1" />
+          {images.length > 0 && (
+            <Button onClick={() => {}}>Download All</Button>
+          )}
         </BaseContainer>
         <BaseContainer className="flex-1 flex flex-col">
           <div className="border w-full border-dashed flex flex-col items-center justify-center text-center h-full rounded-lg text-gray-500 relative">
@@ -110,15 +114,6 @@ function App() {
                 </div>
               </button>
             )}
-
-            {/* {currentImage && (
-              <ImageCanvas
-                key={currentImage.url}
-                value={currentImage}
-                ratio={currentRatio}
-              />
-            )} */}
-
             {images.map((item) => (
               <ImageCanvas
                 key={item.url}
