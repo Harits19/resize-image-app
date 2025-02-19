@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import {
   downloadBlob,
   getFilenameWithoutExtension,
@@ -32,13 +32,42 @@ export default function ImageCanvas({
 
   const backgroundColorDebounce = useDebounceValue(backgroundColor);
 
+  const getBlobData = useCallback(async () => {
+    const canvas = canvasRef.current;
+
+    if (!canvas) {
+      console.log("canvas is undefined");
+
+      return {
+        filename: undefined,
+      };
+    }
+
+    const blob =
+      (await new Promise<Blob | null>((resolve) =>
+        canvas.toBlob((blob) => resolve(blob), "image/jpeg")
+      )) ?? undefined;
+    const imageFile = getFilenameWithoutExtension(value.file.name);
+    const ratioText = smallestRatio(ratio.width, ratio.height).replace(
+      ":",
+      "x"
+    );
+
+    const filename = `${imageFile} ${ratioText}.jpeg`;
+
+    return {
+      blob,
+      filename,
+    };
+  }, [ratio.height, ratio.width, value.file.name]);
+
   useEffect(() => {
     if (!canvasRef.current) return;
     setRef({
       ...canvasRef.current,
       getBlobData,
     });
-  }, []);
+  }, [getBlobData, setRef]);
 
   useEffect(() => {
     const img = new Image();
@@ -87,35 +116,6 @@ export default function ImageCanvas({
       ctx.drawImage(img, centerX, centerY);
     };
   }, [backgroundColorDebounce, ratio.height, ratio.width, value.url]);
-
-  const getBlobData = async () => {
-    const canvas = canvasRef.current;
-
-    if (!canvas) {
-      console.log("canvas is undefined");
-
-      return {
-        filename: undefined,
-      };
-    }
-
-    const blob =
-      (await new Promise<Blob | null>((resolve) =>
-        canvas.toBlob((blob) => resolve(blob), "image/jpeg")
-      )) ?? undefined;
-    const imageFile = getFilenameWithoutExtension(value.file.name);
-    const ratioText = smallestRatio(ratio.width, ratio.height).replace(
-      ":",
-      "x"
-    );
-
-    const filename = `${imageFile} ${ratioText}.jpeg`;
-
-    return {
-      blob,
-      filename,
-    };
-  };
 
   const handleDownload = async () => {
     const canvas = canvasRef.current;
