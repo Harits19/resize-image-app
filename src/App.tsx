@@ -5,11 +5,14 @@ import { createObjectURL, smallestRatio } from "./utils/file-util";
 import useBeforeUnload from "./hooks/use-before-unload";
 import { RatioModel } from "./models/ratio-model";
 import ImageCanvas from "./components/image-canvast";
+import { IoIosCloseCircle } from "react-icons/io";
+import useImageState from "./hooks/use-image-state";
 
 function App() {
   const imageInputRef = useRef<HTMLInputElement>(null);
-  const [images, setImages] = useState<File[]>([]);
-  const [currentImage, setCurrentImage] = useState<File>();
+  const { dispatch, currentImage, images } = useImageState();
+
+  console.log("re render App page");
 
   const listImageRatio: RatioModel[] = [
     {
@@ -24,7 +27,7 @@ function App() {
       height: 9,
       width: 16,
     },
-  ];
+  ] as const;
 
   const [currentRatio, setCurrentRatio] = useState<RatioModel>(
     listImageRatio[0]
@@ -95,8 +98,7 @@ function App() {
                     console.log("No Image Selected");
                     return;
                   }
-                  setImages(newImages);
-                  setCurrentImage(newImages[0]);
+                  dispatch({ type: "setImage", payload: newImages });
                 }}
               />
               <div
@@ -111,11 +113,9 @@ function App() {
 
             {currentImage && (
               <ImageCanvas
+                key={currentImage.name}
                 value={currentImage}
-                canvasAspectRatio={currentRatio.width / currentRatio.height}
-                onClickClose={() => {
-                  setCurrentImage(undefined);
-                }}
+                ratio={currentRatio}
               />
             )}
           </div>
@@ -124,18 +124,31 @@ function App() {
               {images.map((item) => {
                 const src = createObjectURL(item);
                 return (
-                  <button
-                    className="bg-gray-400 w-[160px] h-[90px] cursor-grab"
-                    onClick={() => {
-                      setCurrentImage(item);
-                    }}
+                  <div
+                    className="bg-gray-400 w-[160px] h-[90px] cursor-grab relative"
+                    key={item.name}
                   >
-                    <img
-                      className="w-full h-full object-contain"
-                      src={src}
-                      key={item.name}
-                    />
-                  </button>
+                    <button
+                      className="w-full h-full object-contain absolute"
+                      onClick={() => {
+                        dispatch({ type: "setCurrentImage", payload: item });
+                      }}
+                    >
+                      <img
+                        className="w-full h-full object-contain "
+                        src={src}
+                        key={item.name}
+                      />
+                    </button>
+                    <button
+                      className="absolute right-0 p-1"
+                      onClick={() => {
+                        dispatch({ type: "deleteImage", payload: item });
+                      }}
+                    >
+                      <IoIosCloseCircle className="text-[24px] text-black shadow-lg border-white  rounded-full overflow-hidden border" />
+                    </button>
+                  </div>
                 );
               })}
             </div>

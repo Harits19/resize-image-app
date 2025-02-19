@@ -1,23 +1,22 @@
 import { useEffect, useRef, useState } from "react";
-import { getFilenameWithoutExtension } from "../utils/file-util";
-import { IoIosCloseCircle } from "react-icons/io";
+import { getFilenameWithoutExtension, smallestRatio } from "../utils/file-util";
 
 export default function ImageCanvas({
   value,
-  onClickClose,
-  canvasAspectRatio,
+  ratio,
 }: {
   value: File;
-  onClickClose?: () => void;
-  canvasAspectRatio: number;
+  ratio: {
+    width: number;
+    height: number;
+  };
 }) {
+  const canvasAspectRatio = ratio.width / ratio.height;
   const src = useRef(URL.createObjectURL(value)).current;
 
   const containerRef = useRef<HTMLDivElement>(null);
 
   const imageFile = getFilenameWithoutExtension(value.name);
-
-  console.log({ imageFile });
 
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [image, setImage] = useState<HTMLImageElement>();
@@ -100,8 +99,12 @@ export default function ImageCanvas({
         if (blob) {
           const url = URL.createObjectURL(blob);
           const a = document.createElement("a");
+          const ratioText = smallestRatio(ratio.width, ratio.height).replace(
+            ":",
+            "x"
+          );
           a.href = url;
-          a.download = `${imageFile} (edited).jpeg`; // Set the filename
+          a.download = `${imageFile} ${ratioText}.jpeg`; // Set the filename
           document.body.appendChild(a); // Required for Firefox
           a.click();
           document.body.removeChild(a); // Clean up
@@ -116,16 +119,13 @@ export default function ImageCanvas({
   return (
     <div ref={containerRef} className="h-full w-full absolute">
       <canvas
-        className="w-full h-full object-contain absolute bg-red-300"
+        className="w-full h-full object-contain absolute "
         ref={canvasRef}
-        style={{ border: "1px solid blue" }}
       ></canvas>
       <button className="absolute bg-white" onClick={handleDownload}>
         Download
       </button>
-      <button className="absolute right-0 p-4" onClick={onClickClose}>
-        <IoIosCloseCircle className="text-[32px] text-black shadow-lg border-white  rounded-full overflow-hidden border" />
-      </button>
+   
     </div>
   );
 }
