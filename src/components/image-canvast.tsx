@@ -1,33 +1,22 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { getFilenameWithoutExtension, smallestRatio } from "../utils/file-util";
+import { ImageModel } from "../models/image-model";
 
 export default function ImageCanvas({
   value,
   ratio,
 }: {
-  value: File;
+  value: ImageModel;
   ratio: {
     width: number;
     height: number;
   };
 }) {
-  const canvasAspectRatio = ratio.width / ratio.height;
-  const src = useRef(URL.createObjectURL(value)).current;
-
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  const imageFile = getFilenameWithoutExtension(value.name);
-
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [image, setImage] = useState<HTMLImageElement>();
 
   useEffect(() => {
-    if (!containerRef) {
-      console.log("container ref is undefined");
-
-      return;
-    }
     const img = new Image();
+    const src = value.url;
     img.src = src;
     img.onload = () => {
       const canvas = canvasRef.current;
@@ -36,7 +25,6 @@ export default function ImageCanvas({
 
         return;
       }
-      setImage(img);
       const ctx = canvas.getContext("2d");
       if (!ctx) {
         console.log("canvas context undefined");
@@ -46,20 +34,13 @@ export default function ImageCanvas({
 
       const imageWidth = img.width;
       const imageHeight = img.height;
-      const containerWidth = containerRef.current?.offsetWidth;
-      const containerHeight = containerRef.current?.offsetHeight;
-
-      if (!containerHeight || !containerWidth) {
-        console.log("container size is undefined");
-        return;
-      }
-
-      console.log({ imageWidth, imageHeight, containerWidth, containerHeight });
 
       const imageAspectRatio = imageWidth / imageHeight;
 
       let canvasWidth = 1,
         canvasHeight = 1;
+
+      const canvasAspectRatio = ratio.width / ratio.height;
 
       if (imageAspectRatio > canvasAspectRatio) {
         // Image is wider than the canvas aspect ratio, so width is the limiting factor
@@ -82,50 +63,45 @@ export default function ImageCanvas({
       // 2. Draw the image (now on top of the background)
       ctx.drawImage(img, centerX, centerY);
     };
-  }, [src, canvasAspectRatio]);
+  }, [ratio.height, ratio.width, value.url]);
 
   const handleDownload = () => {
-    if (image) {
-      const canvas = canvasRef.current;
+    const canvas = canvasRef.current;
 
-      if (!canvas) {
-        console.log("canvas is undefined");
+    if (!canvas) {
+      console.log("canvas is undefined");
 
-        return;
-      }
-
-      // Method 1: Using toBlob (Recommended for most cases)
-      canvas.toBlob((blob) => {
-        if (blob) {
-          const url = URL.createObjectURL(blob);
-          const a = document.createElement("a");
-          const ratioText = smallestRatio(ratio.width, ratio.height).replace(
-            ":",
-            "x"
-          );
-          a.href = url;
-          a.download = `${imageFile} ${ratioText}.jpeg`; // Set the filename
-          document.body.appendChild(a); // Required for Firefox
-          a.click();
-          document.body.removeChild(a); // Clean up
-          URL.revokeObjectURL(url); // Release memory
-        } else {
-          console.error("Failed to create blob.");
-        }
-      }, "image/jpeg"); // Specify image type (PNG is lossless)
+      return;
     }
+
+    // Method 1: Using toBlob (Recommended for most cases)
+    canvas.toBlob((blob) => {
+      if (blob) {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        const ratioText = smallestRatio(ratio.width, ratio.height).replace(
+          ":",
+          "x"
+        );
+        a.href = url;
+        const imageFile = getFilenameWithoutExtension(value.file.name);
+        a.download = `${imageFile} ${ratioText}.jpeg`; // Set the filename
+        document.body.appendChild(a); // Required for Firefox
+        a.click();
+        document.body.removeChild(a); // Clean up
+        URL.revokeObjectURL(url); // Release memory
+      } else {
+        console.error("Failed to create blob.");
+      }
+    }, "image/jpeg"); // Specify image type (PNG is lossless)
   };
 
   return (
-    <div ref={containerRef} className="h-full w-full absolute">
+    <div className="h-full w-full absolute">
       <canvas
         className="w-full h-full object-contain absolute "
         ref={canvasRef}
       ></canvas>
-      <button className="absolute bg-white" onClick={handleDownload}>
-        Download
-      </button>
-   
     </div>
   );
 }

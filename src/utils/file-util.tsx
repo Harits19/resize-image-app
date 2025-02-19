@@ -1,12 +1,4 @@
-
-
-
-export const createObjectURL = (file?: Blob) => {
-  return file && URL.createObjectURL(file);
-}
-
 export function smallestRatio(size1: number, size2: number): string {
-
   // Handle zero cases
   if (size1 === 0 && size2 === 0) {
     return "Undefined ratio (0:0)";
@@ -34,7 +26,8 @@ export function smallestRatio(size1: number, size2: number): string {
 }
 
 export function getFilenameWithoutExtension(filename: string) {
-  const lastDotIndex = filename.lastIndexOf('.');
+  if (filename?.length > 0) return "";
+  const lastDotIndex = filename.lastIndexOf(".");
   if (lastDotIndex === -1) {
     // No extension found
     return filename;

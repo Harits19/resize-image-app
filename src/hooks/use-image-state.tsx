@@ -1,8 +1,9 @@
 import { useReducer } from "react";
+import { ImageModel } from "../models/image-model";
 
 interface State {
-  images: File[];
-  currentImage?: File;
+  images: ImageModel[];
+  currentImage?: ImageModel;
 }
 
 type Action =
@@ -12,11 +13,11 @@ type Action =
     }
   | {
       type: "deleteImage";
-      payload: File;
+      payload: ImageModel;
     }
   | {
       type: "setCurrentImage";
-      payload: File;
+      payload: ImageModel;
     };
 
 export default function useImageState() {
@@ -24,7 +25,7 @@ export default function useImageState() {
     const newState: State = { ...prevState };
 
     const setImage = (payload: File[]) => {
-      newState.images = payload;
+      newState.images = payload.map((item) => new ImageModel(item));
       setFirstImage();
     };
 
@@ -33,14 +34,14 @@ export default function useImageState() {
       newState.currentImage = newState.images[0];
     };
 
-    const deleteImage = (payload: File) => {
+    const deleteImage = (payload: ImageModel) => {
       newState.images = prevState.images.filter(
-        (item) => item.name !== payload.name
+        (item) => item.file.name !== payload.file.name
       );
       setFirstImage();
     };
 
-    const setCurrentImage = (payload: File) => {
+    const setCurrentImage = (payload: ImageModel) => {
       newState.currentImage = payload;
     };
 

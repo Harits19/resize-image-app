@@ -1,7 +1,7 @@
 import { RiImageAddFill } from "react-icons/ri";
 import BaseContainer from "./components/base-container";
 import { useRef, useState } from "react";
-import { createObjectURL, smallestRatio } from "./utils/file-util";
+import { smallestRatio } from "./utils/file-util";
 import useBeforeUnload from "./hooks/use-before-unload";
 import { RatioModel } from "./models/ratio-model";
 import ImageCanvas from "./components/image-canvast";
@@ -11,8 +11,6 @@ import useImageState from "./hooks/use-image-state";
 function App() {
   const imageInputRef = useRef<HTMLInputElement>(null);
   const { dispatch, currentImage, images } = useImageState();
-
-  console.log("re render App page");
 
   const listImageRatio: RatioModel[] = [
     {
@@ -85,7 +83,7 @@ function App() {
         </BaseContainer>
         <BaseContainer className="flex-1 flex flex-col">
           <div className="border w-full border-dashed flex flex-col items-center justify-center text-center h-full rounded-lg text-gray-500 relative">
-            <button className="w-full h-full" onClick={handleOnClickArea}>
+            {!currentImage && <button className="w-full h-full" onClick={handleOnClickArea}>
               <input
                 ref={imageInputRef}
                 type="file"
@@ -109,24 +107,26 @@ function App() {
                 <RiImageAddFill className="text-[60px] text-center" />
                 <div>Tarik Gambarmu Kesini</div>
               </div>
-            </button>
+            </button>}
 
             {currentImage && (
               <ImageCanvas
-                key={currentImage.name}
+                key={currentImage.url}
                 value={currentImage}
                 ratio={currentRatio}
               />
             )}
           </div>
-          <div className="flex flex-col w-full h-auto overflow-x-scroll mt-4 no-scrollbar overflow-y-hidden ">
-            <div className="flex flex-row w-max gap-x-2 bg-green-50">
+          <div className="flex flex-col w-full  h-[90px] overflow-x-scroll mt-4 no-scrollbar ">
+            <div className="flex flex-row w-max h-full gap-x-2 bg-green-50">
               {images.map((item) => {
-                const src = createObjectURL(item);
+                const isSelected = item.file.name === currentImage?.file.name;
                 return (
                   <div
-                    className="bg-gray-400 w-[160px] h-[90px] cursor-grab relative"
-                    key={item.name}
+                    className={`bg-gray-400 w-[160px] h-full cursor-grab relative ${
+                      isSelected ? " border-blue-500 border-2" : ""
+                    }`}
+                    key={item.url}
                   >
                     <button
                       className="w-full h-full object-contain absolute"
@@ -136,8 +136,8 @@ function App() {
                     >
                       <img
                         className="w-full h-full object-contain "
-                        src={src}
-                        key={item.name}
+                        src={item.url}
+                        key={item.url}
                       />
                     </button>
                     <button
