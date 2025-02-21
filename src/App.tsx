@@ -1,6 +1,11 @@
 import BaseContainer from "./components/base-container";
 import { useState } from "react";
-import { downloadBlob, smallestRatio } from "./utils/file-util";
+import {
+  downloadBlob,
+  drawImage,
+  getBlobData,
+  smallestRatio,
+} from "./utils/file-util";
 import useBeforeUnload from "./hooks/use-before-unload";
 import { RatioModel } from "./models/ratio-model";
 import ImageCanvas from "./components/image-canvas";
@@ -12,7 +17,7 @@ import ImageInputView from "./components/image-input-view";
 
 function App() {
   const [backgroundColor, setBackgroundColor] = useState("#000000");
-  const { dispatch, currentImage, images, refs } = useImageState();
+  const { dispatch, currentImage, images } = useImageState();
   const [loadingAll, setLoadingAll] = useState(false);
 
   const listImageRatio: RatioModel[] = [
@@ -40,9 +45,20 @@ function App() {
     setLoadingAll(true);
     const zip = new JSZip();
 
-    for (const item of refs.current) {
+    for (const item of images) {
       if (!item) continue;
-      const { blob, filename } = await item.getBlobData();
+
+      const canvas = await drawImage({
+        src: item.url,
+        ratio: currentRatio,
+        backgroundColorDebounce: backgroundColor,
+      });
+
+      const { blob, filename } = await getBlobData({
+        canvas,
+        ratio: currentRatio,
+        value: item,
+      });
 
       if (!filename || !blob) continue;
 
@@ -131,18 +147,14 @@ function App() {
         <BaseContainer className="flex-1 flex flex-col">
           {currentImage?.file.name}
           <div className="border w-full border-dashed flex flex-col items-center justify-center text-center h-full rounded-lg text-gray-500 relative">
-            {images.map((item, index) => {
-              return (
-                <ImageCanvas
-                  backgroundColor={backgroundColor}
-                  setRef={(value) => (refs.current[index] = value)}
-                  key={item.url}
-                  value={item}
-                  ratio={currentRatio}
-                  show={item.file.name === currentImage?.file.name}
-                />
-              );
-            })}
+            {currentImage && (
+              <ImageCanvas
+                backgroundColor={backgroundColor}
+                key={currentImage.url}
+                value={currentImage}
+                ratio={currentRatio}
+              />
+            )}
             <div
               className={`absolute w-full h-full ${
                 images.length > 0 ? "opacity-0" : ""
