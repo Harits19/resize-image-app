@@ -11,7 +11,7 @@ import JSZip from "jszip";
 import ImageInputView from "./components/image-input-view";
 
 function App() {
-  const [backgroundColor, setBackgroundColor] = useState("#00000");
+  const [backgroundColor, setBackgroundColor] = useState("#000000");
   const { dispatch, currentImage, images, refs } = useImageState();
   const [loadingAll, setLoadingAll] = useState(false);
 
