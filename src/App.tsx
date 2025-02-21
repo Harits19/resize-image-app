@@ -18,7 +18,9 @@ import ImageInputView from "./components/image-input-view";
 function App() {
   const [backgroundColor, setBackgroundColor] = useState("#000000");
   const { dispatch, currentImage, images } = useImageState();
-  const [loadingAll, setLoadingAll] = useState(false);
+  const [totalImageDownloaded, setTotalImageDownloaded] = useState<number>();
+
+  const isLoadingDownloadAll = totalImageDownloaded !== undefined;
 
   const listImageRatio: RatioModel[] = [
     {
@@ -42,7 +44,7 @@ function App() {
   useBeforeUnload();
 
   const handleDownloadAll = async () => {
-    setLoadingAll(true);
+    setTotalImageDownloaded(0);
     const zip = new JSZip();
 
     for (const item of images) {
@@ -63,6 +65,15 @@ function App() {
       if (!filename || !blob) continue;
 
       zip.file(`${filename}`, blob, { binary: true });
+      setTotalImageDownloaded((prev) => {
+        const newTotal = (prev ?? 0) + 1;
+
+        if (newTotal === images.length) {
+          return prev;
+        }
+
+        return newTotal;
+      });
     }
 
     const zipBlob = await zip.generateAsync({ type: "blob" });
@@ -72,7 +83,7 @@ function App() {
     ).replace(":", "x");
 
     downloadBlob({ blob: zipBlob, filename: `Size ${ratioText}.zip` });
-    setLoadingAll(false);
+    setTotalImageDownloaded(undefined);
   };
 
   return (
@@ -130,7 +141,10 @@ function App() {
           <div className="flex flex-1" />
           {images.length > 0 && (
             <>
-              <Button loading={loadingAll} onClick={handleDownloadAll}>
+              <Button
+                loading={isLoadingDownloadAll}
+                onClick={handleDownloadAll}
+              >
                 Download All
               </Button>
               <div className="h-4" />
@@ -203,6 +217,34 @@ function App() {
                     </div>
                   );
                 })}
+              </div>
+            </div>
+          )}
+          {isLoadingDownloadAll && (
+            <div className="flex flex-col w-full">
+              <div className="flex flex-row h-1 w-full border mt-2 border-black rounded-full overflow-hidden">
+                <div
+                  className="h-full flex bg-black"
+                  style={{
+                    flex: totalImageDownloaded,
+                  }}
+                />
+
+                <div
+                  className="h-full flex "
+                  style={{
+                    flex: images.length - totalImageDownloaded,
+                  }}
+                />
+              </div>
+              <div className="flex flex-row w-full">
+                <span className="flex flex-1">
+                  Process image : {images[totalImageDownloaded].file.name}
+                </span>
+
+                <span>
+                  {((totalImageDownloaded / images.length) * 100).toFixed(2)} %
+                </span>
               </div>
             </div>
           )}
